@@ -352,16 +352,6 @@ export default function Dashboard() {
     const revenue = verified * 500;
     const expectedRevenue = total * 500;
 
-    // Cities
-    const cityMap = {};
-    data.forEach((d) => {
-      const c = (d.city || "").trim();
-      if (c && c !== "Select LGA") cityMap[c] = (cityMap[c] || 0) + 1;
-    });
-    const cityData = Object.entries(cityMap)
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, value]) => ({ name, value }));
-
     // Occupations
     const occMap = {};
     data.forEach((d) => {
@@ -393,7 +383,6 @@ export default function Dashboard() {
       noProof,
       revenue,
       expectedRevenue,
-      cityData,
       occData,
       stateData,
     };
@@ -606,84 +595,42 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Charts Row */}
-            <div style={S.chartsRow} className="dash-charts">
-              {/* City Distribution */}
-              <div style={S.chartCard}>
-                <h3 style={S.chartTitle}>
-                  Members by City
-                  <span style={S.chartCount}>{stats.cityData.length} cities</span>
-                </h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={stats.cityData}
-                    margin={{ top: 5, right: 10, left: -15, bottom: 70 }}
+            {/* Occupation Pie (full width) */}
+            <div style={S.chartCard}>
+              <h3 style={S.chartTitle}>Occupations</h3>
+              <ResponsiveContainer width="100%" height={240}>
+                <PieChart>
+                  <Pie
+                    data={stats.occData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={90}
+                    paddingAngle={3}
+                    dataKey="value"
                   >
-                    <XAxis
-                      dataKey="name"
-                      interval={0}
-                      angle={-40}
-                      textAnchor="end"
-                      height={70}
-                      tick={{
-                        fill: "rgba(255,255,255,0.6)",
-                        fontSize: 10,
-                      }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{
-                        fill: "rgba(255,255,255,0.4)",
-                        fontSize: 10,
-                      }}
-                      axisLine={false}
-                      tickLine={false}
-                      allowDecimals={false}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="value" radius={[4, 4, 0, 0]} fill={GOLD} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Occupation Pie */}
-              <div style={S.chartCard}>
-                <h3 style={S.chartTitle}>Occupations</h3>
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie
-                      data={stats.occData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={80}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {stats.occData.map((_, i) => (
-                        <Cell
-                          key={i}
-                          fill={PIE_COLORS[i % PIE_COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div style={S.legend}>
-                  {stats.occData.map((o, i) => (
-                    <span key={i} style={S.legendItem}>
-                      <span
-                        style={{
-                          ...S.legendDot,
-                          background: PIE_COLORS[i % PIE_COLORS.length],
-                        }}
+                    {stats.occData.map((_, i) => (
+                      <Cell
+                        key={i}
+                        fill={PIE_COLORS[i % PIE_COLORS.length]}
                       />
-                      {o.name}
-                    </span>
-                  ))}
-                </div>
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div style={S.legend}>
+                {stats.occData.map((o, i) => (
+                  <span key={i} style={S.legendItem}>
+                    <span
+                      style={{
+                        ...S.legendDot,
+                        background: PIE_COLORS[i % PIE_COLORS.length],
+                      }}
+                    />
+                    {o.name}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -1812,15 +1759,6 @@ const S = {
     color: "rgba(255,255,255,0.75)",
     margin: "0 0 14px",
     letterSpacing: 0.3,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  chartCount: {
-    fontSize: 11,
-    fontWeight: 500,
-    color: "rgba(255,255,255,0.4)",
-    letterSpacing: 0,
   },
   legend: {
     display: "flex",
