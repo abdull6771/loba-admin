@@ -68,6 +68,81 @@ export default function Dashboard() {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox]);
 
+  // Inject responsive CSS once. Inline styles win the specificity battle by
+  // default, so the rules below use !important to override them on mobile.
+  useEffect(() => {
+    const id = "dash-responsive-styles";
+    if (document.getElementById(id)) return;
+    const el = document.createElement("style");
+    el.id = id;
+    el.textContent = `
+      @media (max-width: 900px) {
+        .dash-page { flex-direction: column !important; }
+        .dash-sidebar {
+          width: 100% !important;
+          min-height: auto !important;
+          position: static !important;
+          padding: 10px 0 !important;
+          flex-direction: row !important;
+          align-items: center !important;
+          align-self: stretch !important;
+          border-right: none !important;
+          border-bottom: 1px solid rgba(212,175,55,0.12) !important;
+        }
+        .dash-sidebar-header {
+          border-bottom: none !important;
+          padding: 0 14px !important;
+          margin-bottom: 0 !important;
+          flex-shrink: 0 !important;
+        }
+        .dash-sidebar-nav {
+          flex: 1 !important;
+          flex-direction: row !important;
+          justify-content: flex-end !important;
+          padding: 0 10px !important;
+          overflow-x: auto !important;
+          gap: 4px !important;
+        }
+        .dash-sidebar-nav button { padding: 8px 12px !important; }
+        .dash-sidebar-footer { display: none !important; }
+        .dash-main { padding: 16px !important; }
+        .dash-topbar {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+          gap: 12px !important;
+        }
+        .dash-page-title { font-size: 20px !important; }
+        .dash-stats { grid-template-columns: repeat(2, 1fr) !important; }
+        .dash-charts { grid-template-columns: 1fr !important; }
+        .dash-detail { grid-template-columns: 1fr !important; }
+        .dash-detail-card { padding: 18px !important; }
+        .dash-toolbar { width: 100% !important; }
+        .dash-searchbox {
+          min-width: 0 !important;
+          width: 100% !important;
+        }
+        .dash-pay-grid {
+          grid-template-columns: 1fr !important;
+        }
+        .dash-modal-card { padding: 20px !important; }
+        table { min-width: 600px; }
+      }
+      @media (max-width: 480px) {
+        .dash-stats { grid-template-columns: 1fr !important; }
+        .dash-sidebar-nav button span:last-child { display: none !important; }
+        .dash-sidebar-nav button { padding: 8px 10px !important; }
+        .dash-page-title { font-size: 18px !important; }
+        .dash-main { padding: 12px !important; }
+        .dash-toast {
+          left: 12px !important;
+          right: 12px !important;
+          max-width: none !important;
+        }
+      }
+    `;
+    document.head.appendChild(el);
+  }, []);
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 4500);
@@ -410,17 +485,17 @@ export default function Dashboard() {
   const verifyAllBusy = verifying.has("__all__");
 
   return (
-    <div style={S.page}>
+    <div style={S.page} className="dash-page">
       {/* Sidebar */}
-      <aside style={S.sidebar}>
-        <div style={S.sidebarHeader}>
+      <aside style={S.sidebar} className="dash-sidebar">
+        <div style={S.sidebarHeader} className="dash-sidebar-header">
           <div style={S.logoRing}>🏫</div>
           <div>
             <div style={S.logoTitle}>SSS Gumel</div>
             <div style={S.logoSub}>Admin Dashboard</div>
           </div>
         </div>
-        <nav style={S.nav}>
+        <nav style={S.nav} className="dash-sidebar-nav">
           {[
             ["overview", "📊", "Overview"],
             ["members", "👥", "Members"],
@@ -439,7 +514,7 @@ export default function Dashboard() {
             </button>
           ))}
         </nav>
-        <div style={S.sidebarFooter}>
+        <div style={S.sidebarFooter} className="dash-sidebar-footer">
           <div
             style={{
               fontSize: 11,
@@ -455,11 +530,11 @@ export default function Dashboard() {
       </aside>
 
       {/* Main */}
-      <main style={S.main}>
+      <main style={S.main} className="dash-main">
         {/* Top bar */}
-        <header style={S.topbar}>
+        <header style={S.topbar} className="dash-topbar">
           <div>
-            <h1 style={S.pageTitle}>
+            <h1 style={S.pageTitle} className="dash-page-title">
               {tab === "overview" && "Dashboard Overview"}
               {tab === "members" && "Registered Members"}
               {tab === "payments" && "Payment Tracking"}
@@ -493,7 +568,7 @@ export default function Dashboard() {
         {tab === "overview" && (
           <div style={S.tabContent}>
             {/* Stat Cards */}
-            <div style={S.statsGrid}>
+            <div style={S.statsGrid} className="dash-stats">
               {[
                 {
                   icon: "👥",
@@ -532,7 +607,7 @@ export default function Dashboard() {
             </div>
 
             {/* Charts Row */}
-            <div style={S.chartsRow}>
+            <div style={S.chartsRow} className="dash-charts">
               {/* City Distribution */}
               <div style={S.chartCard}>
                 <h3 style={S.chartTitle}>
@@ -613,7 +688,7 @@ export default function Dashboard() {
             </div>
 
             {/* State + Payment summary row */}
-            <div style={S.chartsRow}>
+            <div style={S.chartsRow} className="dash-charts">
               <div style={S.chartCard}>
                 <h3 style={S.chartTitle}>Members by State</h3>
                 <ResponsiveContainer width="100%" height={180}>
@@ -841,8 +916,8 @@ export default function Dashboard() {
         {/* ═══ MEMBERS TAB ═══ */}
         {tab === "members" && (
           <div style={S.tabContent}>
-            <div style={S.toolbar}>
-              <div style={S.searchBox}>
+            <div style={S.toolbar} className="dash-toolbar">
+              <div style={S.searchBox} className="dash-searchbox">
                 <span style={{ fontSize: 16, opacity: 0.5 }}>🔍</span>
                 <input
                   style={S.searchInput}
@@ -857,7 +932,7 @@ export default function Dashboard() {
             </div>
 
             {selectedMember ? (
-              <div style={S.detailCard}>
+              <div style={S.detailCard} className="dash-detail-card">
                 <button
                   style={S.backBtn}
                   onClick={() => setSelectedMember(null)}
@@ -906,7 +981,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                 </div>
-                <div style={S.detailGrid}>
+                <div style={S.detailGrid} className="dash-detail">
                   {[
                     ["📧 Email", selectedMember.email],
                     ["📱 Phone", selectedMember.phone],
@@ -1176,7 +1251,7 @@ export default function Dashboard() {
         {/* ═══ PAYMENTS TAB ═══ */}
         {tab === "payments" && (
           <div style={S.tabContent}>
-            <div style={S.toolbar}>
+            <div style={S.toolbar} className="dash-toolbar">
               <div style={{ display: "flex", gap: 8 }}>
                 {[
                   ["all", `All (${stats.total})`],
@@ -1232,9 +1307,10 @@ export default function Dashboard() {
             </div>
 
             <div
+              className="dash-pay-grid"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
                 gap: 14,
               }}
             >
@@ -1439,6 +1515,7 @@ export default function Dashboard() {
         <div style={S.modalOverlay} onClick={() => setConfirm(null)}>
           <div
             style={S.modalCard}
+            className="dash-modal-card"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={S.modalTitle}>
@@ -1542,6 +1619,7 @@ export default function Dashboard() {
 
       {toast && (
         <div
+          className="dash-toast"
           style={{
             ...S.toast,
             background:
